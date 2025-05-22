@@ -1,0 +1,15 @@
+{
+  "instance_name": "spacelab",
+  "channel_monitor": ["system", "security"],
+  "case_creation": {
+    "webhook": {
+      "url": "http://localhost:5000/push_alert",
+      "enabled": true
+    },
+    "slack": {
+      "enabled": true,
+      "channels": ["uno", "dos", "tres"],
+      "dm": ["spacebar"]
+    }
+  }
+}

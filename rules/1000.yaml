@@ -1,0 +1,27 @@
+# 1.  Key / value pairs  (a mapping)
+name: LogSignal
+version: "0.1"
+
+# 2.  Nested mapping
+metadata:
+  author: spacebar
+  license: MIT
+  tags:
+    - windows
+    - security
+    - realtime
+
+# 3.  List of objects
+rules:
+  - id: failed_login
+    channel: Security
+    event_id: metadata|tags
+    timeframe: 60        # seconds
+    threshold: 5
+    group_by: IpAddress
+    enabled: true
+
+  - id: ps_scriptblock
+    channel: Microsoft-Windows-PowerShell/Operational
+    event_id: 4104
+    enabled: false
