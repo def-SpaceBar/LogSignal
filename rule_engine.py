@@ -1,7 +1,6 @@
 import xml
 from collections import defaultdict
 
-
 class RuleEngine:
     def __init__(self, imported_rules, _rules_folder):
         __rules__ = defaultdict(str)
