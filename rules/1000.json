@@ -1,5 +1,5 @@
 {
-  "id": 1000,
+  "id": "1000",
   "name": "User Created",
   "description": "A domain user has been created",
   "data": {

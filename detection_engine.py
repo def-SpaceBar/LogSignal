@@ -5,12 +5,13 @@ import json
 from collections import defaultdict
 import threading
 import xmltodict
-
+from subscription_manager import SubscriptionManager
 
 class DetectionEngine:
 
     def __init__(self):
         self.detection_map = defaultdict(dict[list: dict])
+        
 
     @staticmethod
     def validate_channels(channel_set: set) -> dict:

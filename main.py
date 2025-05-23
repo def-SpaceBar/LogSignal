@@ -44,7 +44,12 @@ def main():
         return rules_array
 
     rules_jsons, _config_json = load_rules(), read_json(_CONFIG_PATH)
-    RE = RuleEngine(rules_jsons, _RULES_FOLDER)
+
+    RE = RuleEngine()
+    RE.rules = defaultdict(str)
+    RE.rules_folder = _RULES_FOLDER
+    for rule in rules_jsons:
+        RE.rules[rule['id']] = rule
 
     monitored_channels = set(_config_json["channel_monitor"])
 
@@ -55,9 +60,8 @@ def main():
         pass
     else:
         print(f"One or more channel is invalid - {validate_channels["invalid_set"]}")
-        print('Continue with available channels')
+        print('It will likely cause errors in initiating the xml rules')
 
-    print(RE.rules.items())
     SM = SubscriptionManager()
     for item, value in RE.rules.items():
         xml_data = RE.load_xml(value['id'])
