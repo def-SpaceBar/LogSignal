@@ -5,7 +5,7 @@ class RuleEngine:
 
     def __init__(self):
 
-        self.rules = None
+        self.rules = defaultdict(str)
         self.rules_folder = None
 
     def load_xml(self, rule_id: str) -> xml:
