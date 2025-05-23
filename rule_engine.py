@@ -15,4 +15,4 @@ class RuleEngine:
             with open(self._rules_folder + "\\" + f"{rule_id}" + ".xml") as rule_xml:
                 return rule_xml.read()
         except FileNotFoundError as e:
-            raise FileNotFoundError("Could not find the rule XML file.")
+            raise FileNotFoundError(f"Could not find the rule XML file. {rule_id}")

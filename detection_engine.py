@@ -4,6 +4,8 @@ from typing import Dict, List
 import json
 from collections import defaultdict
 
+import xmltodict
+
 
 class SubscriptionManager:
     def __init__(self):
@@ -11,9 +13,29 @@ class SubscriptionManager:
 
     def register_sub(self, subscription: Dict) -> None:
         self.sub_map.update(subscription)
+
     @staticmethod
-    def start_sub(channel, state, query):
-        subscription = evt.EvtSubscribe(channel, state, None, query, None)
+    def on_event(action, context, event_handle):
+        print(f"[CALLBACK START] Action: {action}, Context: {context}")
+
+        if action == evt.EvtSubscribeActionDeliver:
+            alert_description = context
+            event = evt.EvtRender(event_handle, evt.EvtRenderEventXml)
+            event = xmltodict.parse(event, xml_attribs=False)
+            print(json.dumps(event, indent=4))
+
+        print("[CALLBACK END]")
+        return 0  # Make sure to return 0
+
+    @staticmethod
+    def start_sub(channel, query):
+        subscription = evt.EvtSubscribe(
+            channel,  # Channel path
+            evt.EvtSubscribeToFutureEvents,  # Flags
+            Query=query,  # XML query
+            Callback=SubscriptionManager.on_event,  # Callback function (async)
+            Context="This is a test"  # Context to pass to callback
+        )
         return subscription
 
 
