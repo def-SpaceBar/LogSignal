@@ -1,3 +1,5 @@
+import inspect
+
 import win32evtlog as evt
 from typing import Dict, List
 import json
@@ -20,8 +22,9 @@ class SubscriptionManager:
     def on_event(action, context, event_handle):
         print(context)
         if action == evt.EvtSubscribeActionDeliver:
-            event = evt.EvtRender(event_handle, evt.EvtRenderEventXml)
-            event = xmltodict.parse(event, xml_attribs=False)
+            event = evt.EvtRender(event_handle, 1)
+            event = str(xmltodict.parse(event)).replace('null', "")
+            print(json.dumps(event, indent=4))
         return 0
 
     @staticmethod

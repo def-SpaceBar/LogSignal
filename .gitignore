@@ -149,7 +149,7 @@ dmypy.json
 
 # pytype static type analyzer
 .pytype/
-
+sandbox.py
 # Cython debug symbols
 cython_debug/
 

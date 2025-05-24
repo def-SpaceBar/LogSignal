@@ -2,21 +2,5 @@
   "id": "1000",
   "name": "User Created",
   "description": "A domain user has been created",
-  "data": {
-    "System": {
-      "high_level":[
-        {"EventID": {"operator": "=", "value": "4265"}},
-        {"EventID": {"operator": "=", "value": "4268"}}
-      ],
-      "low_level": [
-        {"Level": {"operator": ">=", "value": "0x11"}},
-        {"TimeCreated": {"operator": ">=", "value": "2025-05-19T00:00:00Z"}}
-      ]
-    },
-    "EventData": [
-      {
-        "LogonType": {"operator": "", "value": ""}
-      }
-    ]
-  }
+  "main_field": ""
 }
