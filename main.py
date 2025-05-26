@@ -1,13 +1,9 @@
 import json
 import time
-from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List
 import win32evtlog
 import xmltodict
-from detection_engine import DetectionEngine
-from rule_engine import RuleEngine
-from subscription_manager import SubscriptionManager
 from main_engine import Engine as Eg
 
 
@@ -68,7 +64,15 @@ def main():
     for item, value in Engine.rule_engine.rules.items():
         xml_data = Engine.rule_engine.load_xml(value['id'])
         sub_channel = xmltodict.parse(xml_data)['QueryList']['Query']['@Path']
-        subscription = Engine.sub_manager.start_sub(sub_channel, xml_data, value)
+        subscription = Engine.sub_manager.start_sub(channel=sub_channel, query=xml_data, context={
+            "detection_engine": Engine.detection_engine,
+            "rule_id": value['id'],
+            "offense_source": "wip",
+            "parser":_config_json["parser"],
+            "engine_instructions": value["engine_instructions"],
+            "name": value["name"],
+            "description": value["description"]
+        })
         Engine.sub_manager.register_sub(
             {
                 subscription: {

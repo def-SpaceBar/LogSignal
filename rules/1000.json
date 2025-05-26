@@ -2,5 +2,6 @@
   "id": "1000",
   "name": "User Created",
   "description": "A domain user has been created",
-  "main_field": ""
+  "main_field": "",
+  "engine_instructions": {}
 }

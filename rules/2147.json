@@ -2,7 +2,7 @@
   "id": "2147",
   "name": "User Created",
   "description": "A domain user has been created",
-  "conditions": {
+  "engine_instructions": {
     "count": 5,
     "timeframe": 600
   }
