@@ -13,15 +13,15 @@
             "Opcode": "0",
             "Keywords": "0x8010000000000000",
             "TimeCreated": {
-                "@SystemTime": "2025-05-24T15:06:15.3616745Z"
+                "@SystemTime": "2025-05-24T15:10:15.7370534Z"
             },
-            "EventRecordID": "123199",
+            "EventRecordID": "123205",
             "Correlation": {
                 "@ActivityID": "{496d4f50-c6fe-000a-ce4f-6d49fec6db01}"
             },
             "Execution": {
                 "@ProcessID": "1840",
-                "@ThreadID": "6216"
+                "@ThreadID": "20556"
             },
             "Channel": "Security",
             "Computer": "spacebar",

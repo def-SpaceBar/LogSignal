@@ -1,6 +1,7 @@
 import xml
 from collections import defaultdict
 
+
 class RuleEngine:
 
     def __init__(self):
