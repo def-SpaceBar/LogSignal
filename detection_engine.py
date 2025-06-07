@@ -8,6 +8,7 @@ from collections import defaultdict
 import threading
 import xmltodict
 
+
 class DetectionEngine:
 
     def __init__(self):
@@ -69,11 +70,18 @@ class DetectionEngine:
                 pass
         return parsed_event
 
-    def analyzer(self, event: dict):
+    def detection_handler(self, event: dict, rule: dict):
         parsed_event = self.parse_event(event)
         hi = self.detection_map
-        print(f'print from analyzer of {json.dumps(event, indent=4)}')
+        rule_offense_source = rule['offense_source']
+        print(f'print from analyzer of {json.dumps(event, indent=4)}\n\n')
         print(f'print of parsed event' + '\n' + json.dumps(parsed_event, indent=4))
+        print('\n\n')
+        print('detection map')
+        print(hi)
+        print('\n\n')
+        print('rule data')
+        print(rule)
 
     @staticmethod
     def validate_channels(channel_set: set) -> dict:

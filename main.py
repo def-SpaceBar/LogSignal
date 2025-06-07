@@ -34,11 +34,13 @@ def main():
         return rules_array
 
     # PATHS ####
+    # TODO: refactor to load from database
     _CONFIG_PATH = r"config.json"
     _RULES_FOLDER = r"rules"
     # PATHS ####
 
     # LOAD DATA ####
+    # TODO: refactor to load from database
     rules_jsons = load_rules(_RULES_FOLDER)
     _config_json = read_json(_CONFIG_PATH)
     monitored_channels = set(_config_json["channel_monitor"])
@@ -51,41 +53,43 @@ def main():
     # OBJECTS ####
 
     # VALIDATIONS ####
+    # validates target channels, requires manual setup of known target channels based on the existing xml rules
+    # TODO: will be modified soon & checked via channel aggregation from the loaded xml queries
+
     validate_channels = Engine.detection_engine.validate_channels(monitored_channels)
-    # VALIDATIONS ####
 
     if validate_channels["all_valid"]:
         pass
     else:
         print(f"One or more channel is invalid - {validate_channels["invalid_set"]}")
         print('It will likely cause errors in initiating the xml rules')
+    # VALIDATIONS ####
 
     # INITIATE SUBSCRIBERS ####
-    for item, value in Engine.rule_engine.rules.items():
-        xml_data = Engine.rule_engine.load_xml(value['id'])
-        sub_channel = xmltodict.parse(xml_data)['QueryList']['Query']['@Path']
-        subscription = Engine.sub_manager.start_sub(channel=sub_channel, query=xml_data, context={
-            "detection_engine": Engine.detection_engine,
-            "rule_id": value['id'],
-            "offense_source": "wip",
-            "parser":_config_json["parser"],
-            "engine_instructions": value["engine_instructions"],
-            "name": value["name"],
-            "description": value["description"]
-        })
+    for rule, rule_value in Engine.rule_engine.rules.items():
+        # Add the detection engine object to each subscribed rule
+        rule_value.update({"detection_engine": Engine.detection_engine})
+        # Load XML using the rule id
+        xml_data = Engine.rule_engine.load_xml(rule_value['id'])
+        # parse the target channel from the xml query
+        subscription_channel = xmltodict.parse(xml_data)['QueryList']['Query']['@Path']
+        # run the win-event xml query subscription
+        subscription = Engine.sub_manager.start_sub(channel=subscription_channel, query=xml_data, context=rule_value)
+        # register the subscription into the subscription manager
         Engine.sub_manager.register_sub(
             {
                 subscription: {
-                    "rule_id": value["id"],
-                    "sub_channel": sub_channel,
+                    "rule_id": rule_value["id"],
+                    "sub_channel": subscription_channel,
                     "offense_source": "wip",
-                    "name": value["name"],
-                    "description": value["description"]
-
+                    "name": rule_value["name"],
+                    "description": rule_value["description"],
+                    "rule_xml": xml_data
                 }
             }
         )
-    # INITIATE SUBSCRIBERS ####
+
+    # block exit
     while True:
         time.sleep(5)
 

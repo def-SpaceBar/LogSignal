@@ -15,19 +15,14 @@ class SubscriptionManager:
     def register_sub(self, subscription: Dict) -> None:
         self.sub_map.update(subscription)
 
-    # def get_sub_data(self, subscription):
-    #     with self.lock_thread_access:
-    #         return self.sub_map
-
     @staticmethod
     def on_event(action, context, event_handle):
-        detection_object = context["detection_engine"]
-        parser_list: list = context["parser"]
         if action == evt.EvtSubscribeActionDeliver:
             event = evt.EvtRender(event_handle, 1)
             event = xmltodict.parse(event)
-            # event = DetectionEngine.event_parser(parser_list, event)
-            detection_object.analyzer(event)
+            detection_engine_obj = context['detection_engine']
+            # Process Detected Event
+            detection_engine_obj.detection_handler(event=event, rule=context)
 
         return 0
 
