@@ -5,7 +5,7 @@ from typing import Dict, List
 import win32evtlog
 import xmltodict
 from main_engine import Engine as Eg
-
+from variables.rule_keys import offense_source_key, rule_id_key, rule_name_key, rule_description_key, rule_xml_key, subscription_channel_key
 
 def main():
     def read_json(_json_path: str | Path) -> Dict:
@@ -49,7 +49,7 @@ def main():
     # OBJECTS ####
     Engine = Eg()
     Engine.rule_engine.rules_folder = _RULES_FOLDER
-    Engine.rule_engine.rules = {rule['id']: rule for rule in rules_jsons}
+    Engine.rule_engine.rules = {rule[rule_id_key]: rule for rule in rules_jsons}
     # OBJECTS ####
 
     # VALIDATIONS ####
@@ -70,21 +70,21 @@ def main():
         # Add the detection engine object to each subscribed rule
         rule_value.update({"detection_engine": Engine.detection_engine})
         # Load XML using the rule id
-        xml_data = Engine.rule_engine.load_xml(rule_value['id'])
-        # parse the target channel from the xml query
-        subscription_channel = xmltodict.parse(xml_data)['QueryList']['Query']['@Path']
+        xml_data = Engine.rule_engine.load_xml(rule_value[rule_id_key])
+        # parse the target channel from the xml query and select by key
+        channel_name = xmltodict.parse(xml_data)['QueryList']['Query']['@Path']
         # run the win-event xml query subscription
-        subscription = Engine.sub_manager.start_sub(channel=subscription_channel, query=xml_data, context=rule_value)
+        subscription = Engine.sub_manager.start_sub(channel=channel_name, query=xml_data, context=rule_value)
         # register the subscription into the subscription manager
         Engine.sub_manager.register_sub(
             {
                 subscription: {
-                    "rule_id": rule_value["id"],
-                    "sub_channel": subscription_channel,
-                    "offense_source": "wip",
-                    "name": rule_value["name"],
-                    "description": rule_value["description"],
-                    "rule_xml": xml_data
+                    rule_id_key: rule_value[rule_id_key],
+                    subscription_channel_key: channel_name,
+                    offense_source_key: rule_value[offense_source_key],
+                    rule_name_key: rule_value[rule_name_key],
+                    rule_description_key: rule_value[rule_description_key],
+                    rule_xml_key: xml_data
                 }
             }
         )
