@@ -1,7 +1,7 @@
 {
-  "id": "1000",
-  "name": "User Created",
-  "description": "A domain user has been created",
-  "main_field": "",
+  "rule_id": "1000",
+  "rule_name": "User Created",
+  "rule_description": "A domain user has been created",
+  "offense_source": "",
   "engine_instructions": {}
 }

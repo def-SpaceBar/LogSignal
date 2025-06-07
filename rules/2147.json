@@ -1,7 +1,8 @@
 {
-  "id": "2147",
-  "name": "User Created",
-  "description": "A domain user has been created",
+  "rule_id": "2147",
+  "rule_name": "User Created",
+  "rule_description": "A domain user has been created",
+  "offense_source": "",
   "engine_instructions": {
     "count": 5,
     "timeframe": 600

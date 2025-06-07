@@ -1,7 +1,6 @@
 {
   "instance_name": "spacelab",
   "channel_monitor": ["system", "security"],
-  "parser": ["System:EventID", ""],
   "case_creation": {
     "webhook": {
       "url": "http://localhost:5000/push_alert",
