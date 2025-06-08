@@ -1,0 +1,7 @@
+{
+  "rule_id": "2000",
+  "rule_name": "User Created",
+  "rule_description": "A domain user has been created",
+  "offense_source": "",
+  "engine_instructions": {}
+}
