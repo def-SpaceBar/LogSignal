@@ -9,11 +9,17 @@ import threading
 import xmltodict
 from ..variables import event_keys as ek
 from ..variables import rule_keys as rk
+from dataclasses import asdict
+
+
+def sliding_time_window():
+    ...
+
 
 class DetectionEngine:
 
     def __init__(self):
-        self.detection_map = defaultdict(dict[list: dict])
+        self.detection_map = defaultdict(lambda: defaultdict(list))
         self.parse_fields = None
         self.thread_data_lock = threading.Lock()
 
@@ -23,7 +29,8 @@ class DetectionEngine:
         event = event[ek.main_event_key]
 
         def handle_Provider(value: dict) -> dict:
-            return {ek.provider: f"{value[ek.at_sign_name_selector]}", ek.provider_guid: f"{value[ek.at_sign_guid_selector]}"}
+            return {ek.provider: f"{value[ek.at_sign_name_selector]}",
+                    ek.provider_guid: f"{value[ek.at_sign_guid_selector]}"}
 
         def handle_TimeCreated(value: dict) -> dict:
             date_and_time, fraction_seconds = value[ek.time_created_selector].split('.')
@@ -71,18 +78,51 @@ class DetectionEngine:
                 pass
         return parsed_event
 
-    def detection_handler(self, event: dict, rule: dict):
+    def append_event_to_map(self, rule_id, offense_source_value, event):
+        self.detection_map[rule_id][offense_source_value].append(event)
+
+    def event_error_handler(self, rule_id: str | None, error_message: str, event: dict, error_key='errors'):
+        rule_id = rule_id if rule_id is not None else 'unknown'
+        event.update({'error_message': error_message})
+        self.detection_map[error_key][rule_id].append(event)
+
+    def event_handler(self, event: dict, rule: dict):
         parsed_event = self.parse_event(event)
-        hi = self.detection_map
-        rule_offense_source = rule[rk.offense_source_key]
-        print(f'print from analyzer of {json.dumps(event, indent=4)}\n\n')
-        print(f'print of parsed event' + '\n' + json.dumps(parsed_event, indent=4))
-        print('\n\n')
-        print('detection map')
-        print(hi)
-        print('\n\n')
-        print('rule data')
-        print(rule)
+
+        # Get the RULE_ID value from the rule dict
+        rule_id_value = rule.get(rk.rule_id_key, None)
+
+        # Get Configured OFFENSE_SOURCE from the current monitoring rule configuration
+        rule_offense_source = rule.get(rk.offense_source_key, None)
+
+        # Get the event's OFFENSE_SOURCE value
+        event_offense_source_value = parsed_event.get(rule_offense_source, None)
+
+        if not rule_id_value:
+            self.event_error_handler(rule_id=rule_id_value,
+                                     error_message='get_rule_offense_source_key',
+                                     event=parsed_event)
+            return
+
+        if not rule_offense_source:
+            self.event_error_handler(rule_id=rule_id_value,
+                                     error_message='get_rule_offense_source_key',
+                                     event=parsed_event)
+            return
+
+        if not event_offense_source_value:
+            self.event_error_handler(rule_id=rule_id_value,
+                                     error_message='get_event_offense_source_value',
+                                     event=parsed_event)
+            return
+
+        self.append_event_to_map(offense_source_value=event_offense_source_value,
+                                 event=parsed_event,
+                                 rule_id=rule[rk.rule_id_key])
+
+    def analyzer(self):
+        pure_dict = json.dumps(self.detection_map, indent=4)
+        print(pure_dict)
 
     @staticmethod
     def validate_channels(channel_set: set) -> dict:
@@ -113,4 +153,3 @@ class DetectionEngine:
             "valid_set": channel_set - invalid_channel_set,
             "invalid_set": invalid_channel_set if invalid_channel_set != set() else None
         }
-
