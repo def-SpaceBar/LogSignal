@@ -91,7 +91,8 @@ def main():
 
     # block exit
     while True:
-        time.sleep(5)
+        Engine.detection_engine.analyzer()
+        time.sleep(10)
 
 
 if __name__ == "__main__":
