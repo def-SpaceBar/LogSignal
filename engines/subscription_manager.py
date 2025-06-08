@@ -22,8 +22,7 @@ class SubscriptionManager:
             event = xmltodict.parse(event)
             detection_engine_obj = context['detection_engine']
             # Process Detected Event
-            detection_engine_obj.detection_handler(event=event, rule=context)
-
+            detection_engine_obj.event_handler(event=event, rule=context)
         return 0
 
     @staticmethod
