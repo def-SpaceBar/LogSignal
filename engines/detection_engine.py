@@ -1,18 +1,23 @@
-from pathlib import Path
+import time
 from datetime import datetime
 import win32evtlog as evt
 import win32file
-from typing import Dict, List
 import json
 from collections import defaultdict
 import threading
-import xmltodict
 from ..variables import event_keys as ek
 from ..variables import rule_keys as rk
-from dataclasses import asdict
+from ..engines import rule_engine
+import sqlite3
+
+debug_state = False
 
 
 def sliding_time_window():
+    ...
+
+
+def counter_detection_module():
     ...
 
 
@@ -22,6 +27,41 @@ class DetectionEngine:
         self.detection_map = defaultdict(lambda: defaultdict(list))
         self.parse_fields = None
         self.thread_data_lock = threading.Lock()
+        self.parsed_events_keys = set()
+        self.parsed_events_keys_by_rule_id = defaultdict(frozenset)
+
+    @staticmethod
+    def validate_channels(channel_set: set) -> dict:
+        channel_set = channel_set
+        invalid_channel_set = set()
+
+        for channel in channel_set:
+
+            try:
+                cfg = evt.EvtOpenChannelConfig(ChannelPath=f"{channel}", Flags=0, Session=None)
+                api_call_success, decimal_flags = evt.EvtGetChannelConfigProperty(
+                    cfg,
+                    evt.EvtChannelConfigEnabled,  # property ID == 0
+                    0)  # flags = 0
+            except Exception:
+                invalid_channel_set.add(channel)
+                continue
+
+            if api_call_success is True and decimal_flags >= 5:
+                continue
+            else:
+                invalid_channel_set.add(channel)
+
+            win32file.CloseHandle(cfg)
+
+        return {
+            "all_valid": True if len(invalid_channel_set) == 0 else False,
+            "valid_set": channel_set - invalid_channel_set,
+            "invalid_set": invalid_channel_set if invalid_channel_set != set() else None
+        }
+
+    def print_parsed_event_keys(self) -> set:
+        return print(self.parsed_events_keys)
 
     @staticmethod
     def parse_event(event: dict) -> dict:
@@ -78,25 +118,37 @@ class DetectionEngine:
                 pass
         return parsed_event
 
-    def append_event_to_map(self, rule_id, offense_source_value, event):
+    def append_event_to_map(self, rule_id, offense_source_value, event) -> None:
         self.detection_map[rule_id][offense_source_value].append(event)
 
-    def event_error_handler(self, rule_id: str | None, error_message: str, event: dict, error_key='errors'):
+    def event_error_handler(self, rule_id: str | None, error_message: str, event: dict, error_key='errors') -> None:
         rule_id = rule_id if rule_id is not None else 'unknown'
         event.update({'error_message': error_message})
         self.detection_map[error_key][rule_id].append(event)
 
-    def event_handler(self, event: dict, rule: dict):
+    def update_detection_events(self,rule_id: str, alert_source: str, events: list):
+        self.detection_map[rule_id][alert_source] = events
+
+
+    def event_handler(self, event: dict, rule: dict) -> append_event_to_map or event_error_handler:
         parsed_event = self.parse_event(event)
+        self.parsed_events_keys = self.parsed_events_keys | set(parsed_event.keys())
+        # self.parsed_events_keys.add()
 
         # Get the RULE_ID value from the rule dict
         rule_id_value = rule.get(rk.rule_id_key, None)
+        if debug_state:
+            print(f"{rule_id_value=}")
 
         # Get Configured OFFENSE_SOURCE from the current monitoring rule configuration
-        rule_offense_source = rule.get(rk.offense_source_key, None)
+        rule_offense_source = rule.get(rk.alert_source_key, None)
+        if debug_state:
+            print(f"{rule_offense_source=}")
 
         # Get the event's OFFENSE_SOURCE value
         event_offense_source_value = parsed_event.get(rule_offense_source, None)
+        if debug_state:
+            print(f"{event_offense_source_value=}")
 
         if not rule_id_value:
             self.event_error_handler(rule_id=rule_id_value,
@@ -120,36 +172,66 @@ class DetectionEngine:
                                  event=parsed_event,
                                  rule_id=rule[rk.rule_id_key])
 
-    def analyzer(self):
-        pure_dict = json.dumps(self.detection_map, indent=4)
-        print(pure_dict)
+    def event_cleanup(self, event: dict, statements: dict, rule_id, valid_events = None):
+        for field, allowed in statements.get("equals", {}).items():
+            if event.get(field) not in allowed:
+                return False
 
-    @staticmethod
-    def validate_channels(channel_set: set) -> dict:
-        channel_set = channel_set
-        invalid_channel_set = set()
+        for field, substrings in statements.get("contains", {}).items():
+            value = event.get(field, "")
+            if not isinstance(value, str):
+                return False  # field missing or not a string → fail
+            if not any(sub in value for sub in substrings):
+                return False
 
-        for channel in channel_set:
+        return True
 
-            try:
-                cfg = evt.EvtOpenChannelConfig(ChannelPath=f"{channel}", Flags=0, Session=None)
-                api_call_success, decimal_flags = evt.EvtGetChannelConfigProperty(
-                    cfg,
-                    evt.EvtChannelConfigEnabled,  # property ID == 0
-                    0)  # flags = 0
-            except Exception:
-                invalid_channel_set.add(channel)
-                continue
-
-            if api_call_success is True and decimal_flags >= 5:
-                continue
-            else:
-                invalid_channel_set.add(channel)
-
-            win32file.CloseHandle(cfg)
-
-        return {
-            "all_valid": True if len(invalid_channel_set) == 0 else False,
-            "valid_set": channel_set - invalid_channel_set,
-            "invalid_set": invalid_channel_set if invalid_channel_set != set() else None
+    def analyzer(self, rule_engine_object):
+        current_time = time.time()
+        engines_map = {
+            "counter": counter_detection_module
         }
+
+        detection_map = self.detection_map
+        rules = rule_engine_object.rules
+
+        for rule, detections in detection_map.items():
+
+            # get the rule instructions
+            rule_data = rules.get(rule, None)
+            engine_instructions = rule_data.get(rk.engine_instructions_key, None)
+
+            # check if we have all needed data
+            if rule_data is None:
+                print(f"Analyzer Error | Rule {rule} | Could not find rule instructions")
+            elif engine_instructions is None:
+                print(f"Analyzer Error | Rule {rule} | Could not find engine instructions")
+            if rule_data or engine_instructions is None:
+                continue
+
+            detection_function = engines_map.get(rk.engine_name_key, None)
+            event_remove_statements = engines_map.get(rk.engine_name_key, {})
+
+            if event_remove_statements:
+                for alert_source, event_list in detections.items():
+                    cleanup_event_list = [event for event in event_list
+                                          if self.event_cleanup(event=event,
+                                                                statements=event_remove_statements,
+                                                                rule_id=rule)
+                                          and (current_time - event[ek.time_created]) <= ek.one_hour_in_second
+                                          ]
+
+            else:
+                for alert_source, event_list in detections.items():
+                    cleanup_event_list = [event for event in event_list
+                                          if (current_time - event[ek.time_created]) <= ek.one_hour_in_second
+                                          ]
+                    self.update_detection_events(rule_id=rule,
+                                                 alert_source=alert_source,
+                                                 events=cleanup_event_list)
+
+
+
+
+
+

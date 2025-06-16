@@ -162,3 +162,4 @@ cython_debug/
 .gitignore
 helpers_ignore/playground.json
 helpers_ignore/*
+sandbox.py

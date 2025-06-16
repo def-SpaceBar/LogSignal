@@ -23,3 +23,6 @@ hashtag_text_selector: str = '#text'
 ##### PARSING EVENT JSON KEYS
 errors_key: str = 'errors'
 custom_parsing_error: str = 'custom_parser_not_found'
+
+#### cleanup time (if older than configured will be deleted)
+one_hour_in_second: int = 3600

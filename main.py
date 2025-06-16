@@ -5,7 +5,7 @@ from typing import Dict, List
 import win32evtlog
 import xmltodict
 from main_engine import Engine as Eg
-from variables.rule_keys import offense_source_key, rule_id_key, rule_name_key, rule_description_key, rule_xml_key, subscription_channel_key
+from variables.rule_keys import alert_source_key, rule_id_key, rule_name_key, rule_description_key, rule_xml_key, subscription_channel_key
 
 def main():
     def read_json(_json_path: str | Path) -> Dict:
@@ -50,6 +50,8 @@ def main():
     Engine = Eg()
     Engine.rule_engine.rules_folder = _RULES_FOLDER
     Engine.rule_engine.rules = {rule[rule_id_key]: rule for rule in rules_jsons}
+    db = Engine.database
+    db_cursor = Engine.db_cursor
     # OBJECTS ####
 
     # VALIDATIONS ####
@@ -81,7 +83,7 @@ def main():
                 subscription: {
                     rule_id_key: rule_value[rule_id_key],
                     subscription_channel_key: channel_name,
-                    offense_source_key: rule_value[offense_source_key],
+                    alert_source_key: rule_value[alert_source_key],
                     rule_name_key: rule_value[rule_name_key],
                     rule_description_key: rule_value[rule_description_key],
                     rule_xml_key: xml_data
@@ -91,8 +93,9 @@ def main():
 
     # block exit
     while True:
-        Engine.detection_engine.analyzer()
-        time.sleep(10)
+        Engine.detection_engine.analyzer(rule_engine_object=Engine.rule_engine)
+        time.sleep(3)
+        Engine.detection_engine.print_parsed_event_keys()
 
 
 if __name__ == "__main__":

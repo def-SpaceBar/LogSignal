@@ -2,6 +2,13 @@
   "rule_id": "1000",
   "rule_name": "User Created",
   "rule_description": "A domain user has been created",
-  "offense_source": "",
-  "engine_instructions": {}
+  "alert_source": "username",
+  "engine_instructions": {
+      "engine_name": "counter",
+      "count": 3,
+      "event_remove_statements": {
+        "equals": {"username": ["spacebar"]},
+        "contains": {"username": ["space"]}
+      }
+  }
 }
