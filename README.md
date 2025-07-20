@@ -1,2 +1,2 @@
 # LogSignal
-Cost-effective Windows log monitor & real-time detection engine..
+Windows log monitor & real-time detection engine..
