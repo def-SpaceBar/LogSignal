@@ -1,14 +1,15 @@
 {
   "rule_id": "1000",
-  "rule_name": "User Created",
+  "rule_name": "Potential User Bruteforce Activity",
   "rule_description": "A domain user has been created",
-  "alert_source": "username",
+  "alert_source": "subjectusername",
+  "severity": "Medium",
   "engine_instructions": {
       "engine_name": "counter",
       "count": 3,
-      "event_remove_statements": {
-        "equals": {"username": ["spacebar"]},
-        "contains": {"username": ["space"]}
+      "cleanup_rules": {
+        "equals": {"eventid": ["4625"]},
+        "contains": {"subjectusername": ["space"]}
       }
   }
 }
