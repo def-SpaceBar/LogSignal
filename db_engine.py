@@ -18,11 +18,11 @@ class alert_object(Base):
     time_created = Column(String)
     rule_name = Column(String)
     rule_id = Column(String)
-    alert_source_field = Column(String)
+    alert_source = Column(String)
     rule_description = Column(Text)
     files = Column(JSON)
     event_id = Column(JSON)
-    detection_engine = Column(String)
+    detection_engines = Column(String)
     raw_events = Column(JSON)
 
 
