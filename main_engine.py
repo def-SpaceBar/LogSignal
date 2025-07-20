@@ -7,5 +7,3 @@ class Engine:
         self.sub_manager = SubscriptionManager()
         self.detection_engine = DetectionEngine()
         self.rule_engine = RuleEngine()
-        self.database = None
-        self.db_cursor = None
