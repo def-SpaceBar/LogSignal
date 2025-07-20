@@ -50,8 +50,6 @@ def main():
     Engine = Eg()
     Engine.rule_engine.rules_folder = _RULES_FOLDER
     Engine.rule_engine.rules = {rule[rule_id_key]: rule for rule in rules_jsons}
-    db = Engine.database
-    db_cursor = Engine.db_cursor
     # OBJECTS ####
 
     # VALIDATIONS ####
@@ -93,9 +91,9 @@ def main():
 
     # block exit
     while True:
-        Engine.detection_engine.analyzer(rule_engine_object=Engine.rule_engine)
+        Engine.detection_engine.process_detection_map(rule_engine_object=Engine.rule_engine)
         time.sleep(3)
-        Engine.detection_engine.print_parsed_event_keys()
+        # Engine.detection_engine.print_parsed_event_keys()
 
 
 if __name__ == "__main__":
