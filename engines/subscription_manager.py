@@ -1,10 +1,7 @@
-import inspect
 from .detection_engine import DetectionEngine
 import win32evtlog as evt
-from typing import Dict, List
-import json
+from typing import Dict
 from collections import defaultdict
-import threading
 import xmltodict
 
 

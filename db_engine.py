@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer, String, Text, select, JSON
+from sqlalchemy import create_engine, Column, Integer, String, Text, JSON
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# DB setup
+
 DB_PATH = "alerts.db"
 db_engine = create_engine(f"sqlite:///{DB_PATH}")
 Session = sessionmaker(bind=db_engine)

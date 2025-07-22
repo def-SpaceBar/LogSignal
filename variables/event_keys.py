@@ -16,6 +16,7 @@ provider_guid: str = 'providerguid'
 at_sign_name_selector: str = '@Name'
 at_sign_guid_selector: str = '@Guid'
 hashtag_text_selector: str = '#text'
+event_id: str = 'eventid'
 
 ###################################
 

@@ -10,7 +10,7 @@ rule_xml_key: str = 'rule_xml'
 subscription_channel_key: str = 'subscription_channel'
 engine_instructions_key: str = 'engine_instructions'
 engine_name_key: str = 'engine_name'
-cleanup_rules_key: str = 'cleanup_rules'
+cleanup_rules_key: str = 'whitelist'
 cleanup_time: str = 'cleanup_time'
 
 

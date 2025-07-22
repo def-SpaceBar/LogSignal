@@ -1,13 +1,13 @@
 {
   "rule_id": "1000",
   "rule_name": "Potential User Bruteforce Activity",
-  "rule_description": "A domain user has been created",
+  "rule_description": "A domain user tried to login to another user or run operations under another user.",
   "alert_source": "subjectusername",
-  "severity": "Medium",
+  "severity": "High",
   "engine_instructions": {
       "engine_name": "counter",
       "count": 3,
-      "cleanup_rules": {
+      "whitelist": {
         "equals": {"eventid": ["4625"]},
         "contains": {"subjectusername": ["space"]}
       }

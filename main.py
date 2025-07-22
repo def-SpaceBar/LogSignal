@@ -2,7 +2,6 @@ import json
 import time
 from pathlib import Path
 from typing import Dict, List
-import win32evtlog
 import xmltodict
 from main_engine import Engine as Eg
 from variables.rule_keys import alert_source_key, rule_id_key, rule_name_key, rule_description_key, rule_xml_key, subscription_channel_key

@@ -1,7 +1,0 @@
-<QueryList>
-  <Query Id="0" Path="Microsoft-Windows-Sysmon/Operational">
-    <Select Path="Microsoft-Windows-Sysmon/Operational">
-      *[System[(EventID=11)]]
-    </Select>
-  </Query>
-</QueryList>

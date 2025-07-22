@@ -24,7 +24,7 @@ def _write_alerts_to_db_(rule_name,
     if files is None:
         files = []
 
-    event_ids = [raw_event['eventid'] for raw_event in raw_events]
+    event_ids = [raw_event[ek.event_id] for raw_event in raw_events]
     event_ids = list(set(event_ids))
     db_session.add(
         alert_object(
