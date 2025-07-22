@@ -33,18 +33,17 @@ LogSignal injects XML queries to the Windows Event Viewer and analyze the retriv
 
 ```
 LogSignal/
-├── main.py                    # Main monitoring engine
+├── main.py                   # Main monitoring engine
 ├── config.json               # System configuration
 ├── ticket_visualizer.py      # Streamlit dashboard
 ├── db_engine.py              # Database models
 ├── rules/                    # Detection rules
-│   ├── 1000.json            # Rule definition
-│   └── 1000.xml             # Event query
-├── LogSignal/
-│   └── engines/             # Core engines
-│       ├── detection_engine.py
-│       ├── rule_engine.py
-│       └── subscription_manager.py
+│   ├── 1000.json             # Rule definition
+│   └── 1000.xml              # Event query
+├── engines/                  # Core engines          
+│   ├── detection_engine.py
+│   ├── rule_engine.py
+│   └── subscription_manager.py
 └── variables/               # Configuration keys
 ```
 
