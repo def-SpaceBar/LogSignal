@@ -2,7 +2,7 @@
 
 **A lightweight, real-time security monitoring system for Windows environments**
 
-LogSignal is a Python-based SOAR (Security Orchestration, Automation and Response) tool that monitors Windows Event Logs in real-time, detects security threats using custom rules, and provides a clean dashboard for incident response.
+LogSignal is a Python-based SIEM tool that monitors Windows Event Logs in real-time, detects security threats using custom rules, and provides a clean dashboard for incident response.
 
 
 ## ✨ Key Features
@@ -11,7 +11,6 @@ LogSignal is a Python-based SOAR (Security Orchestration, Automation and Respons
 - **Custom Detection Rules**: JSON-based rule engine customized detection functions
 - **Whitelist Monitoring**: Allows to keep only events that match the whitelist (based on predefined fields & list of values).
 - **Dashboard**: Streamlit dashboard for alert view.
-- **Automated Alerting**: Webhook and Slack integration for instant notifications
 - **SQLite Database**: Lightweight storage for alerts.
 - **Multi-Channel Support**: Monitor Security, Sysmon, PowerShell, and custom channels
 
